@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <title>To-Do List</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body class="light">
+    <div class="container">
+        <h1>To-Do List</h1>
+
+        <div class="top-bar">
+            <input
+                type="text"
+                id="todo-input"
+                placeholder="Nhập công việc và nhấn Enter..."
+            >
+            <button id="toggle-theme">🌙</button>
+        </div>
+
+        <div class="file-actions">
+            <button id="export-btn">Xuất file</button>
+            <input type="file" id="import-file" accept=".json">
+        </div>
+
+        <ul id="todo-list"></ul>
+    </div>
+
+    <script src="/static/script.js"></script>
+</body>
+</html>
