@@ -1,38 +1,74 @@
+from sqlalchemy.orm import Session
+from sqlalchemy import asc, desc
+from app.models.todo_model import Todo
+
+
 class TodoService:
     def __init__(self, repository):
         self.repository = repository
 
-    def create_todo(self, data):
-        return self.repository.create(data.title, data.is_done)
+    def create_todo(self, db: Session, data):
+        return self.repository.create(
+            db=db,
+            title=data.title,
+            description=data.description,
+            is_done=data.is_done
+        )
 
-    def get_todo(self, todo_id: int):
-        return self.repository.get_by_id(todo_id)
+    def get_todo(self, db: Session, todo_id: int):
+        return self.repository.get_by_id(db, todo_id)
 
-    def update_todo(self, todo_id: int, data):
-        return self.repository.update(todo_id, data.title, data.is_done)
+    def update_todo(self, db: Session, todo_id: int, data):
+        todo = self.repository.get_by_id(db, todo_id)
+        if not todo:
+            return None
 
-    def delete_todo(self, todo_id: int):
-        return self.repository.delete(todo_id)
+        return self.repository.update(
+            db=db,
+            todo=todo,
+            title=data.title,
+            description=data.description,
+            is_done=data.is_done
+        )
 
-    def list_todos(self, is_done=None, q=None, sort="created_at", limit=10, offset=0):
-        data = self.repository.get_all()
+    def delete_todo(self, db: Session, todo_id: int):
+        todo = self.repository.get_by_id(db, todo_id)
+        if not todo:
+            return None
+
+        return self.repository.delete(db, todo)
+
+    def list_todos(
+        self,
+        db: Session,
+        is_done: bool | None = None,
+        q: str | None = None,
+        sort: str = "created_at",
+        limit: int = 10,
+        offset: int = 0,
+    ):
+        query = db.query(Todo)
 
         # Filter
         if is_done is not None:
-            data = [t for t in data if t["is_done"] == is_done]
+            query = query.filter(Todo.is_done == is_done)
 
         # Search
         if q:
-            q_lower = q.lower()
-            data = [t for t in data if q_lower in t["title"].lower()]
+            query = query.filter(Todo.title.ilike(f"%{q}%"))
 
         # Sort
-        reverse = sort.startswith("-")
-        data.sort(key=lambda x: x["created_at"], reverse=reverse)
+        if sort.startswith("-"):
+            field_name = sort[1:]
+            field = getattr(Todo, field_name, Todo.created_at)
+            query = query.order_by(desc(field))
+        else:
+            field = getattr(Todo, sort, Todo.created_at)
+            query = query.order_by(asc(field))
 
-        total = len(data)
+        total = query.count()
 
         # Pagination
-        items = data[offset: offset + limit]
+        items = query.offset(offset).limit(limit).all()
 
         return items, total

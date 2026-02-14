@@ -1,38 +1,42 @@
-from datetime import datetime
+from sqlalchemy.orm import Session
+from app.models.todo_model import Todo
 
 
 class TodoRepository:
-    def __init__(self):
-        self._todos = []
-        self._next_id = 1
 
-    def create(self, title: str, is_done: bool):
-        todo = {
-            "id": self._next_id,
-            "title": title,
-            "is_done": is_done,
-            "created_at": datetime.utcnow()
-        }
-        self._todos.append(todo)
-        self._next_id += 1
+    def create(self, db: Session, title: str, description: str | None, is_done: bool):
+        todo = Todo(
+            title=title,
+            description=description,
+            is_done=is_done
+        )
+        db.add(todo)
+        db.commit()
+        db.refresh(todo)
         return todo
 
-    def get_all(self):
-        return self._todos.copy()
+    def get_all(self, db: Session, skip: int = 0, limit: int = 10):
+        return db.query(Todo).offset(skip).limit(limit).all()
 
-    def get_by_id(self, todo_id: int):
-        return next((t for t in self._todos if t["id"] == todo_id), None)
+    def get_by_id(self, db: Session, todo_id: int):
+        return db.query(Todo).filter(Todo.id == todo_id).first()
 
-    def update(self, todo_id: int, title: str, is_done: bool):
-        todo = self.get_by_id(todo_id)
-        if todo:
-            todo["title"] = title
-            todo["is_done"] = is_done
+    def update(self, db: Session, todo: Todo, title: str, description: str, is_done: bool):
+        todo.title = title
+        todo.description = description
+        todo.is_done = is_done
+        db.commit()
+        db.refresh(todo)
         return todo
 
-    def delete(self, todo_id: int):
-        for i, todo in enumerate(self._todos):
-            if todo["id"] == todo_id:
-                self._todos.pop(i)
-                return True
-        return False
+    def patch(self, db: Session, todo: Todo, **kwargs):
+        for key, value in kwargs.items():
+            setattr(todo, key, value)
+        db.commit()
+        db.refresh(todo)
+        return todo
+
+    def delete(self, db: Session, todo: Todo):
+        db.delete(todo)
+        db.commit()
+        return todo
