@@ -5,7 +5,8 @@ from app.schemas.todo import (
     TodoCreate,
     TodoUpdate,
     TodoResponse,
-    PaginatedTodoResponse
+    PaginatedTodoResponse,
+    TodoStatusUpdate
 )
 from app.repositories.todo_repository import TodoRepository
 from app.services.todo_service import TodoService
@@ -26,9 +27,6 @@ repository = TodoRepository()
 service = TodoService(repository)
 
 
-@router.get("/health")
-def health_check():
-    return {"status": "ok"} 
 
 @router.post("/", response_model=TodoResponse, status_code=201)
 def create(todo: TodoCreate, db: Session = Depends(get_db)):
@@ -82,3 +80,22 @@ def delete(todo_id: int, db: Session = Depends(get_db)):
     deleted = service.delete_todo(db, todo_id)
     if not deleted:
         raise HTTPException(status_code=404, detail="Todo not found")
+
+@router.patch("/{todo_id}/status", response_model=TodoResponse)
+def update_status(
+    todo_id: int,
+    data: TodoStatusUpdate,
+    db: Session = Depends(get_db)
+):
+    todo = service.update_status(db, todo_id, data.is_done)
+    if not todo:
+        raise HTTPException(status_code=404, detail="Todo not found")
+    return todo
+
+
+@router.post("/{todo_id}/complete", response_model=TodoResponse)
+def mark_complete(todo_id: int, db: Session = Depends(get_db)):
+    todo = service.mark_complete(db, todo_id)
+    if not todo:
+        raise HTTPException(status_code=404, detail="Todo not found")
+    return todo

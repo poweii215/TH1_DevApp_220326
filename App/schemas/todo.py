@@ -44,3 +44,7 @@ class PaginatedTodoResponse(BaseModel):
     total: int
     limit: int
     offset: int
+
+class TodoStatusUpdate(BaseModel):
+    is_done: bool
+

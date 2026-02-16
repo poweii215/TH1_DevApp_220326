@@ -11,7 +11,13 @@ app = FastAPI(
     title=settings.APP_NAME,
     debug=settings.DEBUG
 )
+
+@app.get("/health")
+def health_check():
+    return {"status": "ok"} 
 @app.get("/")
 def root():
     return {"message": "Welcome to the Todo API!"}
 app.include_router(todo_router, prefix="/api/v1")
+
+

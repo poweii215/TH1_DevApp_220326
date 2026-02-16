@@ -37,6 +37,28 @@ class TodoService:
             return None
 
         return self.repository.delete(db, todo)
+    
+    def update_status(self, db: Session, todo_id: int, is_done: bool):
+        todo = self.repository.get_by_id(db, todo_id)
+        if not todo:
+            return None
+
+        todo.is_done = is_done
+        db.commit()
+        db.refresh(todo)
+        return todo
+
+
+    def mark_complete(self, db: Session, todo_id: int):
+        todo = self.repository.get_by_id(db, todo_id)
+        if not todo:
+            return None
+
+        todo.is_done = True
+        db.commit()
+        db.refresh(todo)
+        return todo
+
 
     def list_todos(
         self,
