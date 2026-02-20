@@ -5,7 +5,7 @@ from datetime import datetime
 
 class TodoCreate(BaseModel):
     title: str = Field(..., min_length=3, max_length=100)
-    description: str | None = Field(default=None)
+    description: str | None = None
     is_done: bool = False
 
     @field_validator("title")
@@ -19,7 +19,7 @@ class TodoCreate(BaseModel):
 
 class TodoUpdate(BaseModel):
     title: str = Field(..., min_length=3, max_length=100)
-    description: str | None = Field(default=None)
+    description: str | None = None
     is_done: bool
 
     @field_validator("title")
@@ -31,6 +31,10 @@ class TodoUpdate(BaseModel):
         return v
 
 
+class TodoStatusUpdate(BaseModel):
+    is_done: bool
+
+
 class TodoResponse(BaseModel):
     id: int
     title: str
@@ -38,13 +42,12 @@ class TodoResponse(BaseModel):
     is_done: bool
     created_at: datetime
 
+    class Config:
+        from_attributes = True
+
 
 class PaginatedTodoResponse(BaseModel):
     items: List[TodoResponse]
     total: int
     limit: int
     offset: int
-
-class TodoStatusUpdate(BaseModel):
-    is_done: bool
-

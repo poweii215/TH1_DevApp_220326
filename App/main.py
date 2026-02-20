@@ -1,10 +1,16 @@
 from fastapi import FastAPI
-from app.routers.todo_router import router as todo_router
 from app.core.config import settings
-from app.core.database import engine
-from app.models import todo_model
-from app.core.database import Base
+from app.core.database import Base, engine
 
+# Import models để SQLAlchemy tạo bảng
+from app.modules.todo.model import Todo
+from app.modules.user.model import User
+
+# Import routers
+from app.modules.todo.router import router as todo_router
+from app.modules.user.router import router as user_router
+
+# Tạo database tables
 Base.metadata.create_all(bind=engine)
 
 app = FastAPI(
@@ -12,12 +18,14 @@ app = FastAPI(
     debug=settings.DEBUG
 )
 
-@app.get("/health")
-def health_check():
-    return {"status": "ok"} 
+# Root endpoint
 @app.get("/")
 def root():
-    return {"message": "Welcome to the Todo API!"}
-app.include_router(todo_router, prefix="/api/v1")
+    return {
+        "message": f"Welcome to {settings.APP_NAME}",
+        "debug_mode": settings.DEBUG
+    }
 
-
+# Include routers
+app.include_router(todo_router, prefix="/todos")    
+app.include_router(user_router, prefix="/users")    
