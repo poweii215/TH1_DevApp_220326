@@ -28,4 +28,4 @@ def root():
 
 # Include routers
 app.include_router(todo_router, prefix="/todos")    
-app.include_router(user_router, prefix="/users")    
+app.include_router(user_router, prefix="/auth")    

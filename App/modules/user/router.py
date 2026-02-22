@@ -7,7 +7,7 @@ from .schema import UserCreate, UserLogin, UserResponse
 from .service import UserService
 from fastapi.security import OAuth2PasswordRequestForm
 
-router = APIRouter(prefix="/auth", tags=["Authentication"])
+router = APIRouter(tags=["Authentication"])
 
 
 @router.post("/register", response_model=UserResponse)

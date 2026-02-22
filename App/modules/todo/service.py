@@ -1,6 +1,7 @@
+from datetime import datetime, timedelta, timezone
 from sqlalchemy.orm import Session
 from sqlalchemy import asc, desc
-from app.modules.todo.model import Todo
+from app.modules.todo.model import Tag, Todo
 
 
 class TodoService:
@@ -8,12 +9,34 @@ class TodoService:
         self.repository = repository
 
     def create_todo(self, db: Session, data, user_id: int):
+        tag_objects = []
+        if data.tags:
+            for tag_name in data.tags:
+                normalized_name = tag_name.strip().lower()
+                if not normalized_name:
+                    continue
+                tag = db.query(Tag).filter(Tag.name == normalized_name).first()
+                if not tag:
+                    tag = Tag(name=normalized_name)
+                    db.add(tag)
+                    db.flush()  
+                tag_objects.append(tag)
+
+        due_date = None
+        if data.due_date:
+            if not isinstance(data.due_date, datetime):
+                raise ValueError("due_date must be a valid datetime")
+            if data.due_date < datetime.now(timezone.utc):
+                raise ValueError("due_date cannot be in the past")
+            due_date = data.due_date
         return self.repository.create(
             db=db,
             title=data.title,
             description=data.description,
             is_done=data.is_done,
-            owner_id=user_id
+            due_date=due_date,
+            owner_id=user_id,
+            tags=tag_objects
         )
 
     def get_todo(self, db: Session, todo_id: int, owner_id: int):
@@ -78,3 +101,21 @@ class TodoService:
         items = query.offset(offset).limit(limit).all()
 
         return items, total
+    
+    
+    def get_overdue(self, db, current_user):
+        return db.query(Todo).filter(
+            Todo.owner_id == current_user.id,
+            Todo.due_date < datetime.utcnow()
+        ).all()
+
+
+    def get_today(self,db, current_user):
+        today_start = datetime.utcnow().replace(hour=0, minute=0, second=0, microsecond=0)
+        today_end = today_start + timedelta(days=1)
+        return db.query(Todo).filter(
+            Todo.owner_id == current_user.id,
+            Todo.due_date >= today_start,
+            Todo.due_date < today_end
+        ).all()
+   

@@ -12,8 +12,7 @@ from .schema import (
 from .service import TodoService
 from .repository import TodoRepository
 
-router = APIRouter(prefix="/todos", tags=["Todos"])
-
+router = APIRouter(tags = ["Todos"])
 # Inject repository vào service
 repository = TodoRepository()
 service = TodoService(repository)
@@ -104,3 +103,11 @@ def list_todos(
         limit=limit,
         offset=offset,
     )
+
+@router.get("/status/overdue", response_model=list[TodoResponse])
+def overdue_todos(db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
+    return service.get_overdue(db, current_user)
+
+@router.get("/status/today", response_model=list[TodoResponse])
+def today_todos(db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
+    return service.get_today(db, current_user)
