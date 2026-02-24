@@ -52,7 +52,9 @@ class TodoService:
             todo=todo,
             title=data.title,
             description=data.description,
-            is_done=data.is_done
+            is_done=data.is_done,
+            tags =data.tags,
+            due_date=data.due_date
         )
 
     def delete_todo(self, db: Session, todo_id: int, owner_id: int):

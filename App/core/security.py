@@ -24,7 +24,7 @@ def verify_password(plain_password: str, hashed_password: str) -> bool:
 # JWT
 # =========================
 
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/users/auth/login")
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/login")
 
 def create_access_token(data: dict, expires_delta: timedelta | None = None):
     to_encode = data.copy()
