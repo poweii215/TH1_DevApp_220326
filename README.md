@@ -2,14 +2,15 @@
 
 FastAPI project with:
 
-- JWT Authentication
-- User module
-- Todo module
-- Due date
-- Tags
-- Overdue / Today endpoints
-- Testing with pytest
-- Docker + PostgreSQL support
+- Cấp 0 — Làm quen FastAPI (Hello To-Do)
+- Cấp 1 — CRUD cơ bản (dữ liệu trong RAM)
+- Cấp 2 — Validation “xịn” + filter/sort/pagination
+- Cấp 3 — Tách tầng (router/service/repository) + cấu hình chuẩn
+- Cấp 4 — Dùng Database (SQLite/PostgreSQL) + ORM
+- Cấp 5 — Authentication + User riêng
+- Cấp 6 — Nâng cao (tag, deadline, nhắc việc)
+- Cấp 7 — Testing + tài liệu + deploy
+- Cấp 8 – Thêm một số tính năng
 
 ---
 
@@ -40,15 +41,21 @@ http://localhost:8000
 
 ## 4. API Endpoints
 
-Auth:
-POST /users/register
-POST /users/login
+default:
+GET /root
 
-Todo:
+Authentication:
+POST /auth/register
+POST /auth/login
+GET /auth/me
+
+
+Todos:
 POST /todos/
 GET /todos/
-GET /todos/{id}
-GET /todos/overdue
-GET /todos/today
-PUT /todos/{id}
-DELETE /todos/{id}
+GET /todos/{todo_id}
+PUT /todos/{todo_id}
+DELETE /todos/{todo_id}
+PATCH /todos/{todo_id}/complete
+GET /todos/status/overdue
+GET /todos/status/today
