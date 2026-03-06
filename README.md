@@ -44,18 +44,18 @@ http://localhost:8000
 default:
 GET /root
 
-Authentication:
-POST /auth/register
-POST /auth/login
-GET /auth/me
+Authentication:  
+POST /auth/register  
+POST /auth/login  
+GET /auth/me  
 
 
 Todos:
-POST /todos/
-GET /todos/
-GET /todos/{todo_id}
-PUT /todos/{todo_id}
-DELETE /todos/{todo_id}
-PATCH /todos/{todo_id}/complete
-GET /todos/status/overdue
-GET /todos/status/today
+POST /todos/  
+GET /todos/  
+GET /todos/{todo_id}  
+PUT /todos/{todo_id}  
+DELETE /todos/{todo_id}  
+PATCH /todos/{todo_id}/complete  
+GET /todos/status/overdue  
+GET /todos/status/today  
